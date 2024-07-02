@@ -6,8 +6,32 @@ import { Dropdown } from "primereact/dropdown";
 import { Checkbox } from "primereact/checkbox";
 import { Button } from "primereact/button";
 import { InputNumber } from "primereact/inputnumber";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
+import { Toast } from "primereact/toast";
+import React, { useRef } from 'react';
 
 export const Form_Solicitud = () => {
+  const toast = useRef(null);
+
+  const accept = () => {
+    toast.current.show({
+      severity: "info",
+      summary: "Confirmed",
+      detail: "You have accepted",
+      life: 3000,
+    });
+  };
+
+  const confirm1 = () => {
+    confirmDialog({
+      message: "Resumen del Pedido",
+      header: "Confirmation",
+      icon: "pi pi-info-circle",
+      defaultFocus: "accept",
+      accept,
+    });
+  };
+
   const [selectedCity, setSelectedCity] = useState(null);
   const cities = [
     { name: "analgesico", code: "ana" },
@@ -77,6 +101,7 @@ export const Form_Solicitud = () => {
 
         <div className="p-col-12 p-md-6">
           <div className="p-grid">
+            <label htmlFor="cantidad">Distribuidor</label>
             <div className="p-col-12">
               <div className="p-field-radiobutton">
                 <RadioButton
@@ -119,7 +144,8 @@ export const Form_Solicitud = () => {
         </div>
 
         <div className="p-col-12">
-          <div className="p-field-checkbox">
+          <label htmlFor="cantidad">Sucursal</label>
+          <div>
             {categories.map((category) => (
               <div key={category.key} className="p-mb-2">
                 <Checkbox
@@ -138,13 +164,15 @@ export const Form_Solicitud = () => {
             ))}
           </div>
         </div>
-
+        <Toast ref={toast} />
+        <ConfirmDialog />
         <div className="p-col-12">
+
           <Button
             label="Submit"
             severity="success"
             loading={loading}
-            onClick={load}
+            onClick={confirm1}
             className="w-full"
           />
         </div>
