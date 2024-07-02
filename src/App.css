@@ -1,0 +1,33 @@
+@import url('https://cdnjs.cloudflare.com/ajax/libs/primeicons/4.1.0/primeicons.min.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/primereact/7.0.1/themes/saga-blue/theme.css');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/primereact/7.0.1/primereact.min.css');
+
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+
+
+body {
+  font-family: 'Roboto', sans-serif;
+}
+
+.card {
+  margin: 2rem;
+}
+
+.p-button {
+  margin-top: 1rem;
+}
+
+.p-field-checkbox {
+  display: flex;
+  align-items: center;
+}
+
+.p-field-radiobutton {
+  margin-bottom: 1rem;
+}
