@@ -5,20 +5,20 @@
 #root {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
-  text-align: center;
-}
-
-.card {
-  padding: 2em;
-}
-
-.read-the-docs {
-  color: #888;
+  padding: 1rem;
+  text-align: right;
 }
 
 body {
   font-family: 'Roboto', sans-serif;
+  background-image: url('https://www.hospitalhumanitario.org/wp-content/uploads/2022/07/DSC_0371-1024x683.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
 }
 
 .card {

@@ -1,185 +1,189 @@
-import { useState } from "react";
-import { InputText } from "primereact/inputtext";
-import { FloatLabel } from "primereact/floatlabel";
-import { RadioButton } from "primereact/radiobutton";
-import { Dropdown } from "primereact/dropdown";
-import { Checkbox } from "primereact/checkbox";
-import { Button } from "primereact/button";
-import { InputNumber } from "primereact/inputnumber";
-import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
-import { Toast } from "primereact/toast";
-import React, { useRef } from 'react';
+import React, { useState } from 'react';
+import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
+import { InputNumber } from 'primereact/inputnumber';
+import { RadioButton } from 'primereact/radiobutton';
+import { Checkbox } from 'primereact/checkbox';
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
 
-export const Form_Solicitud = () => {
-  const toast = useRef(null);
+export const Form_Solicitud = ({ onSubmit }) => {
+  const [nombreMedicamento, setNombreMedicamento] = useState('');
+  const [tipoMedicamento, setTipoMedicamento] = useState('');
+  const [cantidad, setCantidad] = useState(null);
+  const [distribuidor, setDistribuidor] = useState('');
+  const [sucursales, setSucursales] = useState([]);
+  const [visibleResumen, setVisibleResumen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const accept = () => {
-    toast.current.show({
-      severity: "info",
-      summary: "Confirmed",
-      detail: "You have accepted",
-      life: 3000,
-    });
-  };
-
-  const confirm1 = () => {
-    confirmDialog({
-      message: "Resumen del Pedido",
-      header: "Confirmation",
-      icon: "pi pi-info-circle",
-      defaultFocus: "accept",
-      accept,
-    });
-  };
-
-  const [selectedCity, setSelectedCity] = useState(null);
-  const cities = [
-    { name: "analgesico", code: "ana" },
-    { name: "antiacido", code: "ant" },
-    { name: "analéptico,", code: "anal" },
-    { name: "antidepresivo", code: "antid" },
-    { name: "antibióticos.", code: "antib" },
+  const tiposMedicamento = [
+    { label: 'Analgésico', value: 'analgésico' },
+    { label: 'Analéptico', value: 'analéptico' },
+    { label: 'Anestésico', value: 'anestésico' },
+    { label: 'Antiácido', value: 'antiácido' },
+    { label: 'Antidepresivo', value: 'antidepresivo' },
+    { label: 'Antibiótico', value: 'antibiótico' }
   ];
 
-  const [ingredient, setIngredient] = useState("");
-
-  const categories = [
-    { name: "PRINCIPAL", key: "A" },
-    { name: "SECUNDARIA", key: "M" },
-  ];
-  const [selectedCategories, setSelectedCategories] = useState([categories[1]]);
-
-  const onCategoryChange = (e) => {
-    let _selectedCategories = [...selectedCategories];
-
-    if (e.checked) _selectedCategories.push(e.value);
-    else
-      _selectedCategories = _selectedCategories.filter(
-        (category) => category.key !== e.value.key
-      );
-
-    setSelectedCategories(_selectedCategories);
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (nombreMedicamento && tipoMedicamento && cantidad > 0 && distribuidor && sucursales.length > 0) {
+      setVisibleResumen(true);
+    } else {
+      setErrorMessage('Por favor, complete todos los campos correctamente.');
+    }
   };
 
-  const [loading, setLoading] = useState(false);
+  const handleConfirmarPedido = () => {
+    onSubmit({ nombreMedicamento, tipoMedicamento, cantidad, distribuidor, sucursales });
+    setVisibleResumen(false);
+    showConfirmation('Pedido Enviado', 'El pedido ha sido enviado correctamente.');
+  };
 
-  const load = () => {
-    setLoading(true);
+  const handleCancelarPedido = () => {
+    setVisibleResumen(false);
+  };
 
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
+  const handleSucursalChange = (e) => {
+    const { value, checked } = e.target;
+    setSucursales((prev) =>
+      checked ? [...prev, value] : prev.filter((sucursal) => sucursal !== value)
+    );
+  };
+
+  const getDireccionSucursal = (sucursal) => {
+    switch (sucursal) {
+      case 'PRINCIPAL':
+        return 'Calle 12 de Diciembre.';
+      case 'SECUNDARIA':
+        return 'Calle Av. Quito';
+      default:
+        return '';
+    }
+  };
+
+  const showConfirmation = (summary, detail) => {
+    window.alert(`${summary}\n\n${detail}`);
   };
 
   return (
-    <div className="p-fluid">
-      <div className="p-grid p-formgrid">
-        <div className="p-col-12 p-md-6">
-          <FloatLabel>
-            <InputText id="medicamento" />
-            <label htmlFor="medicamento">Medicamento</label>
-          </FloatLabel>
-        </div>
-
-        <div className="p-col-12 p-md-6">
-          <Dropdown
-            value={selectedCity}
-            onChange={(e) => setSelectedCity(e.value)}
-            options={cities}
-            optionLabel="name"
-            placeholder="Tipo de Medicamento"
-            className="w-full"
+    <>
+      <form onSubmit={handleSubmit} className="p-fluid">
+        <div className="p-field">
+          <label htmlFor="nombreMedicamento">Nombre del Medicamento:</label>
+          <InputText
+            id="nombreMedicamento"
+            value={nombreMedicamento}
+            onChange={(e) => setNombreMedicamento(e.target.value)}
           />
         </div>
-
-        <div className="p-col-12 p-md-6">
-          <FloatLabel>
-            <InputNumber inputId="integeronly" id="cantidad" min={0} />
-            <label htmlFor="cantidad">Cantidad</label>
-          </FloatLabel>
+        <div className="p-field">
+          <label htmlFor="tipoMedicamento">Tipo del Medicamento:</label>
+          <Dropdown
+            id="tipoMedicamento"
+            value={tipoMedicamento}
+            options={tiposMedicamento}
+            onChange={(e) => setTipoMedicamento(e.value)}
+          />
         </div>
-
-        <div className="p-col-12 p-md-6">
-          <div className="p-grid">
-            <label htmlFor="cantidad">Distribuidor</label>
-            <div className="p-col-12">
-              <div className="p-field-radiobutton">
-                <RadioButton
-                  inputId="dis1"
-                  name="distribuidor"
-                  value="COFARMA"
-                  onChange={(e) => setIngredient(e.value)}
-                  checked={ingredient === "COFARMA"}
-                />
-                <label htmlFor="dis1" className="ml-2">
-                  COFARMA
-                </label>
-              </div>
-              <div className="p-field-radiobutton">
-                <RadioButton
-                  inputId="dis2"
-                  name="distribuidor"
-                  value="EMPSEPHAR"
-                  onChange={(e) => setIngredient(e.value)}
-                  checked={ingredient === "EMPSEPHAR"}
-                />
-                <label htmlFor="dis2" className="ml-2">
-                  EMPSEPHAR
-                </label>
-              </div>
-              <div className="p-field-radiobutton">
-                <RadioButton
-                  inputId="dis3"
-                  name="distribuidor"
-                  value="CEMEFAR."
-                  onChange={(e) => setIngredient(e.value)}
-                  checked={ingredient === "CEMEFAR."}
-                />
-                <label htmlFor="dis3" className="ml-2">
-                  CEMEFAR
-                </label>
-              </div>
+        <div className="p-field">
+          <label htmlFor="cantidad">Cantidad:</label>
+          <InputNumber
+            id="cantidad"
+            value={cantidad}
+            onValueChange={(e) => setCantidad(e.value)}
+          />
+        </div>
+        <div className="p-field">
+          <label>Distribuidor:</label>
+          <div className="p-formgroup-inline">
+            <div className="p-field-radiobutton">
+              <RadioButton
+                inputId="cofarma"
+                name="distribuidor"
+                value="COFARMA"
+                onChange={(e) => setDistribuidor(e.value)}
+                checked={distribuidor === 'COFARMA'}
+              />
+              <label htmlFor="cofarma">COFARMA</label>
+            </div>
+            <div className="p-field-radiobutton">
+              <RadioButton
+                inputId="empsephar"
+                name="distribuidor"
+                value="EMPSEPHAR"
+                onChange={(e) => setDistribuidor(e.value)}
+                checked={distribuidor === 'EMPSEPHAR'}
+              />
+              <label htmlFor="empsephar">EMPSEPHAR</label>
+            </div>
+            <div className="p-field-radiobutton">
+              <RadioButton
+                inputId="cemefar"
+                name="distribuidor"
+                value="CEMEFAR"
+                onChange={(e) => setDistribuidor(e.value)}
+                checked={distribuidor === 'CEMEFAR'}
+              />
+              <label htmlFor="cemefar">CEMEFAR</label>
             </div>
           </div>
         </div>
-
-        <div className="p-col-12">
-          <label htmlFor="cantidad">Sucursal</label>
-          <div>
-            {categories.map((category) => (
-              <div key={category.key} className="p-mb-2">
-                <Checkbox
-                  inputId={category.key}
-                  name="lugar"
-                  value={category}
-                  onChange={onCategoryChange}
-                  checked={selectedCategories.some(
-                    (item) => item.key === category.key
-                  )}
-                />
-                <label htmlFor={category.key} className="ml-2">
-                  {category.name}
-                </label>
-              </div>
-            ))}
+        <div className="p-field">
+          <label>Sucursal:</label>
+          <div className="p-formgroup-inline">
+            <div className="p-field-checkbox">
+              <Checkbox
+                inputId="principal"
+                name="sucursal"
+                value="PRINCIPAL"
+                onChange={handleSucursalChange}
+                checked={sucursales.includes('PRINCIPAL')}
+              />
+              <label htmlFor="principal">Principal</label>
+            </div>
+            <div className="p-field-checkbox">
+              <Checkbox
+                inputId="secundaria"
+                name="sucursal"
+                value="SECUNDARIA"
+                onChange={handleSucursalChange}
+                checked={sucursales.includes('SECUNDARIA')}
+              />
+              <label htmlFor="secundaria">Secundaria</label>
+            </div>
           </div>
         </div>
-        <Toast ref={toast} />
-        <ConfirmDialog />
-        <div className="p-col-12">
+        {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+        <Button type="submit" label="OK" className="p-mr-2" />
+        <Button type="button" label="Borrar" className="p-button-secondary" onClick={() => {
+          setNombreMedicamento('');
+          setTipoMedicamento('');
+          setCantidad(null);
+          setDistribuidor('');
+          setSucursales([]);
+          setErrorMessage('');
+        }} />
+      </form>
 
-          <Button
-            label="Submit"
-            severity="success"
-            loading={loading}
-            onClick={confirm1}
-            className="w-full"
-          />
+      <Dialog
+        header={`Confirmación de Pedido`}
+        visible={visibleResumen}
+        style={{ width: '30vw' }}
+        onHide={() => setVisibleResumen(false)}
+        footer={
+          <div>
+            <Button label="Cancelar" icon="pi pi-times" onClick={handleCancelarPedido} className="p-button-text" />
+            <Button label="Confirmar" icon="pi pi-check" onClick={handleConfirmarPedido} autoFocus />
+          </div>
+        }
+      >
+        <div>
+          <h3>Pedido al Distribuidor {distribuidor}</h3>
+          <p>{cantidad} unidades del {tipoMedicamento} {nombreMedicamento}</p>
+          <p>Para la farmacia situada en {sucursales.map(sucursal => getDireccionSucursal(sucursal)).join(' y en ')}</p>
         </div>
-        <div className="p-col-12">
-          <Button label="Cancel" severity="danger" className="w-full" />
-        </div>
-      </div>
-    </div>
+      </Dialog>
+    </>
   );
 };
